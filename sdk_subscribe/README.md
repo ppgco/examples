@@ -19,5 +19,5 @@ curl --request POST \
   --header 'accept: application/json' \
   --header 'x-token: xxxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' \
   --header 'content-type: application/json'
-  -d '{"to": "SUBSCRIBER_ID_HERE", "title": "sample title", "body": "message conent", "icon": "https://via.placeholder.com/150/150", "redirectLink": "https://samplewebsite.pl"}'
+  -d '{"to": "SUBSCRIBER_ID_HERE", "message": {"title": "sample title", "body": "message conent", "icon": "https://via.placeholder.com/150/150", "redirectLink": "https://samplewebsite.pl"}}'
 `````

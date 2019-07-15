@@ -9,7 +9,11 @@ Example use of SDK to create self subscriber form with PushPushGo SDK
 5. Modify index.html and replace value PROJECT_ID_HERE with real ProjectId
 
 # Run
-`$ live-server`
+For python 3.x
+`$ python -m http.server 8080`
+
+For python 2.x
+`$ python -m SimpleHTTPServer 8080`
 
 # How to send message?
 If you fetch correct subscriber id, you can send this via curl like:

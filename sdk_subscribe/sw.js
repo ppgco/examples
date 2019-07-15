@@ -1,0 +1,1 @@
+importScripts('https://cdn.pushpushgo.com/PROJECT_ID_HERE/worker.js');

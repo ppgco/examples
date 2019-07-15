@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="manifest" href="/manifest.json">
+  <!-- <script charset="UTF-8" src="https://cdn.pushpushgo.com/js/578fa9a695076aef52b1ba67.js" async="async"></script> -->
+  <script src="https://cdn.pushpushgo.com/scripts/sdk.js"></script>
+</head>
+<body>
+  <p>sample crm userId <span id="crmId">1234567890</span></p>
+  <ul id="state">
+    <li>checking push notifications state...</li>
+  </ul>
+  <button id="subscribe" disabled="disabled">click to subscribe</button>
+  <button id="unsubscribe" disabled="disabled">click to unsubscribe</button>
+</body>
+<script>
+  window.addEventListener('load', function() {
+    const config = {
+      projectId: 'PROJECT_ID_HERE',
+      isHTTPS: true, 
+    };
+
+    const client = new ppg.sdk.Client(config);
+
+    const state = document.querySelector('#state');
+    const crmId = document.querySelector('#crmId');
+    const subscribe = document.querySelector('#subscribe');
+    const unsubscribe = document.querySelector('#unsubscribe');
+
+    function setState(status) {
+      const li = document.createElement('li');
+      li.innerText = status;
+      state.appendChild(li);
+    }
+
+    function toggleButton(element, value) {
+      element.disabled = typeof value === 'boolean' 
+        ? !value 
+        : !element.disabled;
+    }
+
+    subscribe.addEventListener('click', function(event) {
+      event.preventDefault();
+      // Manage subscription, add some tags or set customId
+      client.register()
+        .then(subscriberId => {
+          setState(`user subscribed! ${subscriberId}`);
+          toggleButton(unsubscribe, true);
+          toggleButton(subscribe, false);
+          return Promise.all([
+            client.appendTags(['registered user', 'self sign']),
+            client.setCustomId(crmId.innerText)
+          ])
+        })
+        .then(() => client.send(true)) // immedietely flag (do not wait for beacon and end session)
+        .catch(() => {
+          toggleButton(subscribe, false);
+          setState('client reject subscription in browser - we cannot show second time prompt - only when user unlock notifications in this domain');
+        });
+    });
+
+    unsubscribe.addEventListener('click', function(event) {
+      event.preventDefault();
+      // Manage subscription, add some tags or set customId
+      client.unsubscribe()
+        .then(() => {
+          setState(`user unsubscribed!`);
+          toggleButton(unsubscribe, false);
+          toggleButton(subscribe, true);
+        });
+    });
+
+    // Check if browser supports push
+    client
+      .isPushSupport()
+      .then(() => client.isSubscribed())
+      .then(isSubscribed => client.getId())
+      .then(subscriberId => {
+        setState('push notifications is supported');
+        if (!subscriberId) {
+          setState('activate subscribe button');
+          toggleButton(subscribe, true);
+        } else {
+          setState(`is already subscribed ${subscriberId}`);
+          toggleButton(unsubscribe, true);
+        }
+      })
+      .catch(() => {
+        setState('push is not supported')
+      });
+    });
+</script>
+</html>

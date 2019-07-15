@@ -18,6 +18,6 @@ curl --request POST \
   --url https://api.pushpushgo.com/project/PROJECT_ID_HERE/send/push \
   --header 'accept: application/json' \
   --header 'x-token: xxxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' \
-  --header 'content-type: application/json'
+  --header 'content-type: application/json' \
   -d '{"to": "SUBSCRIBER_ID_HERE", "message": {"title": "sample title", "body": "message conent", "icon": "https://via.placeholder.com/150/150", "redirectLink": "https://samplewebsite.pl"}}'
 `````

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    /* Source: https://codepen.io/mburnette/pen/LxNxNg */
+    input[type=checkbox]{
+      height: 0;
+      width: 0;
+      visibility: hidden;
+    }
+
+    label {
+      cursor: pointer;
+      text-indent: -9999px;
+      width: 50px;
+      height: 20px;
+      background: grey;
+      display: block;
+      border-radius: 20px;
+      position: relative;
+    }
+
+    label:after {
+      content: '';
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 20px;
+      transition: 0.3s;
+    }
+
+    input:checked + label {
+      background: #bada55;
+    }
+
+    input:checked + label:after {
+      left: calc(100%);
+      transform: translateX(-100%);
+    }
+
+    label:active:after {
+      width: 30px;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+  </style>
+  <script src="https://cdn.pushpushgo.com/scripts/sdk.js"></script>
+</head>
+<body>
+  <div class="ppg-toggle">
+    <input type="checkbox" id="ppg-switch"/>
+    <label for="ppg-switch">Toggle</label>
+    <span>Notifications <span id="state"></span></span>
+  </div>
+</body>
+<script>
+  window.addEventListener('load', function() {
+    const config = {
+      endpoint: "https://api.pushpushgo.com",
+      projectId: 'PROJECT_ID_HERE',
+      vapidPublicKey: 'VAPID_PUBLIC_KEY_HERE',
+      isHTTPS: true, 
+    };
+
+    const client = new ppg.sdk.Client(config);
+    const toggle = document.querySelector('#ppg-switch');
+    const state = document.querySelector('#state');
+
+    function setState(status) {
+      if (!status) {
+        state.innerText = "";
+        return;
+      }
+      state.innerText = "(" + status + ")";
+    }
+
+    toggle.addEventListener('click', function(event) {
+      setState("please accept prompt");
+      // Manage subscription, add some tags or set customId
+      client.register()
+        .then(subscriberId => {
+          console.log(subscriberId);
+          setState("subscribed");
+          if (!event.target.checked) {
+            // Manage subscription, add some tags or set customId
+            setState(`unregister...`);
+            client.unsubscribe()
+              .then(() => {
+                setState();
+              });
+          } else {
+            setState()
+            return client
+              .appendTags(['toggle:true'])
+              .then(() => client.send(true))
+          }
+        })
+        .catch((e) => {
+          console.error(e);
+          setState(e.message)
+          toggle.disabled = true;
+          console.log('client reject subscription in browser - we cannot show second time prompt - only when user unlock notifications in this domain');
+        });
+    });
+
+    // Check if browser supports push
+    client
+      .isPushSupport()
+      .then(() => client.isSubscribed())
+      .then(isSubscribed => client.getId())
+      .then(subscriberId => {
+        setState('click to subscribe');
+        if (!subscriberId) {
+          console.log('activate subscribe button');
+          toggle.disabled = false;
+        } else {
+          setState('subscribed')
+          console.log(`is already subscribed ${subscriberId}`);
+          toggle.checked = true;
+        }
+      })
+      .catch(() => {
+        setState('not supported')
+        toggle.disabled = true;
+        console.log('push is not supported')
+      });
+    });
+</script>
+</html>
